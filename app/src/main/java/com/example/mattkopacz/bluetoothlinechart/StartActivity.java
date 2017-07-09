@@ -31,6 +31,7 @@ public class StartActivity extends AppCompatActivity {
 
 
     private List<String> mList = new ArrayList<String>();
+    private List<String> mmList = new ArrayList<String>();
 
 
 
@@ -133,6 +134,7 @@ public class StartActivity extends AppCompatActivity {
                 String deviceAdress = device.getAddress();   // Pobierz adress MAC urządzenia
 
                 mList.add(deviceAdress);
+                mmList.add(deviceName);
 
             }
 
@@ -146,7 +148,7 @@ public class StartActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setTitle("Lista urządzeń BT")
-                .setSingleChoiceItems(mList.toArray(new String[mList.size()]), 0, new DialogInterface.OnClickListener() {
+                .setSingleChoiceItems(mmList.toArray(new String[mmList.size()]), 0, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
 
