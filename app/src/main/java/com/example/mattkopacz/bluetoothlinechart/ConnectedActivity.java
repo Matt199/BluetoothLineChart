@@ -8,13 +8,11 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
 import android.os.Handler;
 import android.os.Message;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothServerSocket;
 import android.widget.Toast;
 
 import com.jjoe64.graphview.GraphView;
@@ -26,6 +24,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.String;
 import java.util.UUID;
+
+
+
 
 public class ConnectedActivity extends AppCompatActivity {
 
@@ -45,24 +46,27 @@ public class ConnectedActivity extends AppCompatActivity {
 
     private ProgressDialog progress;
 
+
+
     private TextView userInfo;
+
+    TextView btOutput;
+
+
+
 
     Handler h;
 
     final int handlerState = 0;
 
-    TextView btOutput;
-
-
     public StringBuilder recDataString = new StringBuilder();
 
 
+    int lastXVal = 0;
 
     private LineGraphSeries<DataPoint> series;
 
 
-
-    int lastXVal = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +78,7 @@ public class ConnectedActivity extends AppCompatActivity {
         GraphView graph = (GraphView) findViewById(R.id.graph);
 
         series = new LineGraphSeries<>(new DataPoint[]{});
+
 
 
         graph.addSeries(series);
@@ -91,7 +96,12 @@ public class ConnectedActivity extends AppCompatActivity {
         graph.getViewport().setMinX(0);
         graph.getViewport().setMaxX(50);
         graph.getViewport().setMinY(0);
-        graph.getViewport().setMaxY(20);
+        graph.getViewport().setMaxY(80);
+        graph.getViewport().isScalable();
+        graph.getViewport().setScalableY(true);
+        graph.getGridLabelRenderer().setVerticalAxisTitle("[cm]");
+        graph.getGridLabelRenderer().setHorizontalAxisTitle("[ms]");
+
         graph.getViewport().setXAxisBoundsManual(true);
         graph.getViewport().setYAxisBoundsManual(true);
 
@@ -109,6 +119,8 @@ public class ConnectedActivity extends AppCompatActivity {
 
 
         Log.d("Odczyt", "Wiadomosc");
+        Log.d("Wartosc", adress);
+
 
         h = new Handler() {
 
@@ -116,10 +128,7 @@ public class ConnectedActivity extends AppCompatActivity {
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
 
-
                 // If recive any message from thread then....
-
-
                 if (msg.what == handlerState) {    // If recive any message from thread then....
 
                     byte[] rBuff = (byte[]) msg.obj; // recived message (bytes)
@@ -143,31 +152,23 @@ public class ConnectedActivity extends AppCompatActivity {
                         recDataString.delete(0, recDataString.length());
 
                         series.appendData(new DataPoint(lastXVal, wartoscInt), true, 50);
-                        lastXVal++;
-
+                        lastXVal ++;
 
                     }
                 }
 
-
             }
-
-
 
         };
 
-
     }
 
-
     // Klasa do odczytywania wartosci
-
 
     private class ConnectedThread extends Thread {
 
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
-        private byte[] mmBuffer;
 
         public ConnectedThread(BluetoothSocket socket) {
             mmSocket = socket;
@@ -225,10 +226,8 @@ public class ConnectedActivity extends AppCompatActivity {
     }
 
 
-
-
-
-    // Próbuje za pomocą klasy AsyncTask (może zadziała...)
+    // Klasa AsyncTask
+    // Do wykonania zada w tle
     private class ConnectBT extends AsyncTask<Void, Void, Void> {
 
         private boolean ConnectSuccess = true;
@@ -250,9 +249,9 @@ public class ConnectedActivity extends AppCompatActivity {
 
                     btAdapter = BluetoothAdapter.getDefaultAdapter();
 
-                    BluetoothDevice dispositivo = btAdapter.getRemoteDevice(adress);
+                    BluetoothDevice device = btAdapter.getRemoteDevice(adress);
 
-                    mmSocket = dispositivo.createInsecureRfcommSocketToServiceRecord(myUUID);
+                    mmSocket = device.createInsecureRfcommSocketToServiceRecord(myUUID);
 
                     BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
                     mmSocket.connect();
@@ -265,7 +264,6 @@ public class ConnectedActivity extends AppCompatActivity {
 
                 ConnectSuccess = false;
             }
-
 
             return null;
         }

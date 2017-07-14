@@ -4,15 +4,13 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothHeadset;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 import android.content.DialogInterface;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,10 +23,8 @@ public class StartActivity extends AppCompatActivity {
     // Informacja dla urzytkownika feedback
     TextView userInfoText;
 
-
+    public String adres = null;
     private BluetoothAdapter mBluetoothAdapter;
-    private BluetoothDevice mBluetoothDevice;
-
 
     private List<String> mList = new ArrayList<String>();
     private List<String> mmList = new ArrayList<String>();
@@ -70,14 +66,12 @@ public class StartActivity extends AppCompatActivity {
 
 
 
-
-
-
-
-
     // Funckja ma sprawdzić dostępność urządzeń Bluetooth
 
     private void checkAvaliability(){
+
+        // Korzystam z metody getDefaultAdapter klasy BluetoothAdapter i przypisuję wartość
+        // do mBluetoothAdapter
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -93,7 +87,7 @@ public class StartActivity extends AppCompatActivity {
             // Jeżeli urządzenie posiada adapter ale nie jest on włączony
             if (!mBluetoothAdapter.isEnabled()) {
 
-                // Karz urzytkownikowi włączyć Bluetooth
+                // Każ urzytkownikowi włączyć Bluetooth
 
                 Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(intent, 1);
@@ -156,12 +150,17 @@ public class StartActivity extends AppCompatActivity {
 
                         // Po wybraniu zmieniam okno
 
+                        adres = mList.get(i);
+
                         Intent intent = new Intent(StartActivity.this, ConnectedActivity.class);
 
                         intent.putExtra("EXTRA_ADRESS", mList.get(i));
 
-
+                        // Wyświetl wskaźnik postępu
                         progressDialog = ProgressDialog.show(StartActivity.this, "Conecting...", "Please Wait");
+
+
+                        // Wyświetl nowe okno
 
                         startActivity(intent);
 
@@ -171,7 +170,5 @@ public class StartActivity extends AppCompatActivity {
         return builder.create();
 
     }
-
-
 
 }
